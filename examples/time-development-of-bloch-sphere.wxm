@@ -1,0 +1,58 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 22.04.0 ] */
+/* [wxMaxima: comment start ]
+wxMaxima 0.8.2 http://wxmaxima.sourceforge.net
+Maxima 5.18.1 http://maxima.sourceforge.net
+Using Lisp CLISP 2.47 (2008-10-23)
+Distributed under the GNU Public License. See the file COPYING.
+Dedicated to the memory of William Schelter.
+The function bug_report() provides bug reporting information.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+load(quantum);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+declare([%alpha, %beta], complex);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+K: [
+matrix([%alpha[1], 0],[0, %alpha[2]]),
+matrix([%beta[1], 0], [0, 0]),
+matrix([0, 0], [0, %beta[2]])
+];
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+KRAUSS_CONSTRAINT[K];
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+factor(Ket["+"]  . TimeDevelopment(Diad["++"], K) . Ket["+"]);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+kill(r);
+a: 1/2 * exp(%i * - %pi/2);
+b : 1/2;
+r[1] : [0, 1, 0];
+r[n] := DensityToBloch(ev(TimeDevelopment(BlochToDensity(r[n-1]), K), %alpha[1] = ''a, %alpha[2] = ''b));
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+plot2d([discrete, makelist(r[i], i, 1, 10), makelist(i,i,1,10)]);
+/* [wxMaxima: input   end   ] */
+
+
+
+/* Old versions of Maxima abort on loading files that end in a comment. */
+"Created with wxMaxima 22.04.0"$

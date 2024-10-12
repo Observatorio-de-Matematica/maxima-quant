@@ -1,0 +1,53 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 22.04.0 ] */
+/* [wxMaxima: comment start ]
+wxMaxima 0.8.2 http://wxmaxima.sourceforge.net
+Maxima 5.18.1 http://maxima.sourceforge.net
+Using Lisp CLISP 2.47 (2008-10-23)
+Distributed under the GNU Public License. See the file COPYING.
+Dedicated to the memory of William Schelter.
+The function bug_report() provides bug reporting information.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: comment start ]
+wxMaxima 0.8.2 http://wxmaxima.sourceforge.net
+Maxima 5.18.1 http://maxima.sourceforge.net
+Using Lisp CLISP 2.47 (2008-10-23)
+Distributed under the GNU Public License. See the file COPYING.
+Dedicated to the memory of William Schelter.
+The function bug_report() provides bug reporting information.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+load(quantum);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+declare(%alpha, complex)$
+declare(%gamma, complex)$
+%rho : Prj["0"] $
+K : [
+    matrix([%alpha[1], 0], [0, %alpha[2]]), 
+    matrix([%gamma[1], 0], [0, 0]),
+    matrix([0, 0], [0, %gamma[2]])
+];
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+DecoherentFunctional(%rho, "++", "-+", K);
+DecoherentFunctional(%rho, "--", "+-", K);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+DecoherentFunctional(%rho, "+++", "-++", K);
+/* [wxMaxima: input   end   ] */
+
+
+
+/* Old versions of Maxima abort on loading files that end in a comment. */
+"Created with wxMaxima 22.04.0"$

@@ -1,0 +1,447 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 22.04.0 ] */
+/* [wxMaxima: title   start ]
+Consistent History 
+in a system with internal Y dynamics
+   [wxMaxima: title   end   ] */
+
+
+/* [wxMaxima: section start ]
+Definitions
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: input   start ] */
+load(quantum);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+/* Dynamics */
+kill(%alpha, %beta, %theta, %psi)$
+declare([%alpha, %beta], complex)$
+RY(%theta) := cos(%theta/2) * ident(2) 
+        - sin(%theta/2) * %i . %sigma["Y"]$
+RZ(%theta) := cos(%theta/2) * ident(2) 
+        - sin(%theta/2) * %i . %sigma["Z"]$
+Krauss : [
+    RY(%theta) . matrix([%alpha[1], 0], [0, %alpha[2]]),
+    RY(%theta) . matrix([%beta[1], 0], [0, 0]),
+    RY(%theta) . matrix([0, 0], [0, %beta[2]]) ];
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+KRAUSS_CONSTRAINT[Krauss]$
+KRAUSS_CONSTRAINT[Krauss]: trigsimp(KRAUSS_CONSTRAINT[Krauss]);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+SuperT(FROM, TO):= SuperOperator(FROM, TO, Krauss);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: section start ]
+Real Decoherence Scheme
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Basis for the Stationary History: 
+Dreesed Z-type Projects
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+First Define the dressed stationary basis by rotation by 
+%psi around Y from the Z basis.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+KET["a"] : RY(%psi) . KET["0"];
+KET["b"] : RY(%psi) . KET["1"];
+kill(Ket["a"], Ket["b"])$
+kill(Bra["a"], Bra["b"])$
+kill(Diad["aa"], Diad["ab"], Diad["ba"], Diad["bb"])$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Then define the Super operator matrix elements as a function of
+%theta, the rotation of the internal dynamics,
+%psi, the rotation of the stationary basis,
+%Alpha, the decoherent order parameter.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+F(FROM, TO, %theta, %psi, %Alpha)
+:=ev(SuperT(FROM, TO)[3], %alpha=%Alpha, eval)$
+Close(%theta, %psi) := [
+        F("ab", "bb", %theta, %psi, [1/sqrt(2), 1/sqrt(2)]), 
+        F("ab", "aa", %theta, %psi, [1/sqrt(2), 1/sqrt(2)]), 
+        F("ba", "aa", %theta, %psi, [1/sqrt(2), 1/sqrt(2)]),
+        F("ba", "bb", %theta, %psi, [1/sqrt(2), 1/sqrt(2)])
+        ];
+Open(%theta, %psi) := [
+        F("bb", "ab", %theta, %psi, [1/sqrt(2), 1/sqrt(2)]),
+        F("bb", "ba", %theta, %psi, [1/sqrt(2), 1/sqrt(2)]),
+        F("aa", "ba", %theta, %psi, [1/sqrt(2), 1/sqrt(2)]),
+        F("aa", "ab", %theta, %psi, [1/sqrt(2), 1/sqrt(2)])
+        ];
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Real decoherent is the decoherence scheme where there is no relative
+phase between the diagonal elements. That is to say,
+the environment decoheres the two composite state of system in a
+quantumechanically identical way.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: comment start ]
+Vanishing loop closers and openers are the interesting criteria
+for the STRONGer consistent condition to be true.
+
+If either is vanishing, we obtain a consistent family by constucting
+histories with the biased Z-type projects.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Compare loop closures and openers
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: input   start ] */
+wxplot2d(Close(0.20, %psi), 
+[%psi, -%pi, %pi],
+[legend, 
+"ab->bb", "ab->aa", "ba->aa", "ba->bb"
+]);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+wxplot2d(Open(0.20, %psi), 
+[%psi, -%pi, %pi],
+[legend,
+"bb->ab", "bb->ba", "aa->ba", "aa->ab"
+]);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Then find the %psi for vanishing closures and openers
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+temp_fun_close(%psi)
+:= F("ab", "bb", 0.20, %psi, [1/sqrt(2), 1/sqrt(2)])$
+temp_fun_open(%psi)
+:= F("bb", "ab", 0.20, %psi, [1/sqrt(2), 1/sqrt(2)])$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+For closures, in degrees:
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+[Root[1]: float(find_root(temp_fun_close(%psi), %psi, -2, -0.5)),
+          float(find_root(temp_fun_close(%psi), %psi, 1.5, 2.5))
+] * float(180/%pi);
+[Root[2]: float(find_root(temp_fun_close(%psi), %psi, -0.5, 0)),
+          float(find_root(temp_fun_close(%psi), %psi, 2.5, 3.14))
+] * float(180/%pi);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+For openers in degrees(only independent rotations are given).
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+[Root[3]: float(find_root(temp_fun_open(%psi), %psi, -2, -1))]
+* float(180/ %pi);
+[Root[4]: float(find_root(temp_fun_open(%psi), %psi, 0, 1))]
+* float(180/%pi);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+As a reference, the internal dynamics gives
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+float(0.20/ %pi* 180);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+NOTE: Opener and Closer doesn't vanish together.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Closure as function of the internal
+dynamics parameter %psi
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: input   start ] */
+wxplot2d(
+[
+    F("ab", "bb", 0.0, %psi, [1/sqrt(2), 1/sqrt(2)]),
+    F("ab", "bb", 0.2, %psi, [1/sqrt(2), 1/sqrt(2)]),
+    F("ab", "bb", 0.4, %psi, [1/sqrt(2), 1/sqrt(2)]),
+    F("ab", "bb", 0.6, %psi, [1/sqrt(2), 1/sqrt(2)])
+],
+[%psi, -%pi, %pi],
+[legend, 
+"0.00", "0.20", "0.40", "0.60"
+]
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Comment: As internal interaction enhances, it is more difficult to 
+retain the strong coherent condition.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Loop closuresas a function 
+of decoherence parameter
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+Below we study the loop closures as a function of the 
+decoherence order parameter.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+wxplot2d(
+[
+    F("ab", "bb", 0.2, %psi, [1/sqrt(1), 1/sqrt(1)]),
+    F("ab", "bb", 0.2, %psi, [1/sqrt(2), 1/sqrt(2)]),
+    F("ab", "bb", 0.2, %psi, [1/sqrt(3), 1/sqrt(3)]),
+    F("ab", "bb", 0.2, %psi, [1/sqrt(4), 1/sqrt(4)])
+],
+[%psi, -%pi, %pi],
+[legend, 
+"1", "1/2", "1/3", "1/4"
+]
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Comment: As the Decoherent enhances, It is easire to find the 
+stationary axis.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Probabilities
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+Probabilites are given by the dual lines(or diagnal) matrix elements.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+P(FROM, TO, %theta, %psi, %Alpha)
+:= F(concat(FROM, FROM), concat(TO, TO), %theta, %psi, %Alpha);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Check:
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+F("ab", "bb", 0.20, Root[1], [1/sqrt(2), 1/sqrt(2)]);
+F("bb", "ab", 0.20, Root[3], [1/sqrt(2), 1/sqrt(2)]);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+The probabilities for the closures-vanishing solutions
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+[ P("a", "a", 0.20, Root[1], [1/sqrt(2), 1/sqrt(2)]), 
+P("a", "b", 0.20, Root[1], [1/sqrt(2), 1/sqrt(2)])];
+[P("b", "b", 0.20, Root[1], [1/sqrt(2), 1/sqrt(2)]),
+P("b", "a", 0.20, Root[1], [1/sqrt(2), 1/sqrt(2)])];
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+[ P("a", "a", 0.20, Root[2], [1/sqrt(2), 1/sqrt(2)]), 
+P("a", "b", 0.20, Root[2], [1/sqrt(2), 1/sqrt(2)])];
+[P("b", "b", 0.20, Root[2], [1/sqrt(2), 1/sqrt(2)]),
+P("b", "a", 0.20, Root[2], [1/sqrt(2), 1/sqrt(2)])];
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Root[2], the small angle gets small flipping probability
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: comment start ]
+The probabilities for the opening-vanishing solutions
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+[ P("a", "a", 0.20, Root[3], [1/sqrt(2), 1/sqrt(2)]), 
+P("a", "b", 0.20, Root[3], [1/sqrt(2), 1/sqrt(2)])];
+[P("b", "b", 0.20, Root[3], [1/sqrt(2), 1/sqrt(2)]),
+P("b", "a", 0.20, Root[3], [1/sqrt(2), 1/sqrt(2)])];
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+[ P("a", "a", 0.20, Root[4], [1/sqrt(2), 1/sqrt(2)]), 
+P("a", "b", 0.20, Root[4], [1/sqrt(2), 1/sqrt(2)])];
+[P("b", "b", 0.20, Root[4], [1/sqrt(2), 1/sqrt(2)]),
+P("b", "a", 0.20, Root[4], [1/sqrt(2), 1/sqrt(2)])];
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+root[4], the small angle gets small flipping probability
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Conclusion
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+A stationary axis exist for small internal rotations(a, b).
+Stronger Decoherence : Larger rotation is allowed. 
+[Result obtained by plotting same (a, b), varying %alpha[1, 2]]
+
+(u, v) depends on %alpha[1, 2];
+generally close to v = b.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: section start ]
+Nontrivial Decoherence
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Dressing the state with a Y Rotation is
+insufficient
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: input   start ] */
+wxplot2d(
+[
+    cabs(F("ab", "bb", 0.2, %psi, 
+        [1/sqrt(2), 1/sqrt(2) * exp(%i * 1/8 * %pi)])),
+    cabs(F("ab", "bb", 0.2, %psi, 
+        [1/sqrt(2), 1/sqrt(2) * exp(%i * 1/4 * %pi)])),
+    cabs(F("ab", "bb", 0.2, %psi, 
+        [1/sqrt(2), 1/sqrt(2) * exp(%i * 1/2 * %pi)])),
+    cabs(F("ab", "bb", 0.2, %psi, 
+        [1/sqrt(2), 1/sqrt(2) * exp(%i * 1 * %pi)]))
+],
+[%psi, -%pi, %pi],
+[legend, 
+"1/8", "1/4", "1/2", "1"
+]
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+As we can see, the phase difference will push the closures up, 
+invalidating any real %psi that can fulfill STRONGer coherent 
+condition.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Dress the state by an extra Z rotation
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+Define the dressed state
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+RZ(%eta) . RY(%psi);
+RY(%psi);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+KET["a"] : RZ(%eta) . RY(%psi) . KET["0"];
+KET["b"] : RZ(%eta) . RY(%psi) . KET["1"];
+kill(Ket["a"], Ket["b"])$
+kill(Bra["a"], Bra["b"])$
+kill(Diad["aa"], Diad["ab"], Diad["ba"], Diad["bb"])$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+F(FROM, TO, %theta, %psi, %eta, %Alpha)
+:=ev(SuperT(FROM, TO)[3], %alpha=%Alpha, eval)$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+%alpha : [1/sqrt(2), 1/sqrt(2) * exp(%i * 1)];
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+G(%psi, %eta) := F("ab", "bb", 0.10, %psi, %eta, %alpha);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+wxdraw3d(contour=map, 
+contour_levels={0},
+explicit(realpart(G(%psi, %eta)), %psi, -%pi, %pi, %eta, 0, %pi),
+explicit(imagpart(G(%psi, %eta)), %psi, -%pi, %pi, %eta, 0, %pi)
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+TODO: study the behavior, when 
+%theta grows,
+%lambda grows,
+
+   [wxMaxima: comment end   ] */
+
+
+
+/* Old versions of Maxima abort on loading files that end in a comment. */
+"Created with wxMaxima 22.04.0"$

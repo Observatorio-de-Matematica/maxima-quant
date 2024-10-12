@@ -1,0 +1,417 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 22.04.0 ] */
+/* [wxMaxima: title   start ]
+Consistent History 
+in a system with internal Y dynamics
+   [wxMaxima: title   end   ] */
+
+
+/* [wxMaxima: section start ]
+Definitions
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: input   start ] */
+load(quantum);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+/* Dynamics */
+kill(%alpha, %beta, %theta, %psi)$
+declare([%alpha, %beta], complex)$
+RY(%theta) := cos(%theta/2) * ident(2) - sin(%theta/2) * %i . %sigma["Y"]$
+RZ(%theta) := cos(%theta/2) * ident(2) - sin(%theta/2) * %i . %sigma["Z"]$
+Krauss : [
+    RY(%theta) . matrix([%alpha[1], 0], [0, %alpha[2]]),
+    RY(%theta) . matrix([%beta[1], 0], [0, 0]),
+    RY(%theta) . matrix([0, 0], [0, %beta[2]]) ];
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+KRAUSS_CONSTRAINT[Krauss]$
+KRAUSS_CONSTRAINT[Krauss]: trigsimp(KRAUSS_CONSTRAINT[Krauss]);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+SuperT(FROM, TO):= SuperOperator(FROM, TO, Krauss);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: section start ]
+Basis for the Stationary History: Biased Z-type Projects
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: comment start ]
+First Define the stationary basis by rotation by %psi around Y from the Z basis.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+KET["a"] : RY(%psi) . KET["0"];
+KET["b"] : RY(%psi) . KET["1"];
+kill(Ket["a"], Ket["b"]);
+kill(Bra["a"], Bra["b"]);
+kill(Diad["aa"], Diad["ab"], Diad["ba"], Diad["bb"]);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Then define the Super operator matrix elements as a function of
+%theta, the rotation of the internal dynamics,
+%psi, the rotation of the stationary basis,
+%Alpha, the decoherent order parameter.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+F(FROM, TO, %theta, %psi, %Alpha):=ev(SuperT(FROM, TO)[3], %alpha=%Alpha, eval)$
+Close(%theta, %psi) := [
+        F("ab", "bb", %theta, %psi, [1/sqrt(2), 1/sqrt(2)]), 
+        F("ab", "aa", %theta, %psi, [1/sqrt(2), 1/sqrt(2)]), 
+        F("ba", "aa", %theta, %psi, [1/sqrt(2), 1/sqrt(2)]),
+        F("ba", "bb", %theta, %psi, [1/sqrt(2), 1/sqrt(2)])
+        ];
+Open(%theta, %psi) := [
+        F("bb", "ab", %theta, %psi, [1/sqrt(2), 1/sqrt(2)]),
+        F("bb", "ba", %theta, %psi, [1/sqrt(2), 1/sqrt(2)]),
+        F("aa", "ba", %theta, %psi, [1/sqrt(2), 1/sqrt(2)]),
+        F("aa", "ab", %theta, %psi, [1/sqrt(2), 1/sqrt(2)])
+        ];
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: section start ]
+Real Decoherence Scheme
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: comment start ]
+Real decoherent is the decoherence scheme where there is no relative
+phase between the diagonal elements. That is to say,
+the environment decoheres the two composite state of system in a
+quantumechanically identical way.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: comment start ]
+Vanishing loop closers and openers are the interesting criteria
+for the STRONGer consistent condition to be true.
+
+If either is vanishing, we obtain a consistent family by constucting
+histories with the biased Z-type projects.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Compare loop closures and openers
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: input   start ] */
+wxplot2d(Close(0.20, %psi), 
+[%psi, -%pi, %pi],
+[legend, 
+"ab->bb", "ab->aa", "ba->aa", "ba->bb"
+]
+);
+wxplot2d(Open(0.20, %psi), 
+[%psi, -%pi, %pi],
+[legend,
+"bb->ab", "bb->ba", "aa->ba", "aa->ab"
+]
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+NOTE: Opener and Closer doesn't vanish together.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Closure as function of the internal
+dynamics parameter %psi
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: input   start ] */
+wxplot2d(
+[
+    F("ab", "bb", 0.0, %psi, [1/sqrt(2), 1/sqrt(2)]),
+    F("ab", "bb", 0.2, %psi, [1/sqrt(2), 1/sqrt(2)]),
+    F("ab", "bb", 0.4, %psi, [1/sqrt(2), 1/sqrt(2)]),
+    F("ab", "bb", 0.6, %psi, [1/sqrt(2), 1/sqrt(2)])
+],
+[%psi, -%pi, %pi],
+[legend, 
+"0.00", "0.20", "0.40", "0.60"
+]
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Comment: As internal interaction enhances, it is more difficult to retain
+the strong coherent condition.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Loop closures as a function of the decoherence parameter
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+Below we study the loop closures as a function of the decoherence order parameter.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+wxplot2d(
+[
+    F("ab", "bb", 0.2, %psi, [1/sqrt(1), 1/sqrt(1)]),
+    F("ab", "bb", 0.2, %psi, [1/sqrt(2), 1/sqrt(2)]),
+    F("ab", "bb", 0.2, %psi, [1/sqrt(3), 1/sqrt(3)]),
+    F("ab", "bb", 0.2, %psi, [1/sqrt(4), 1/sqrt(4)])
+],
+[%psi, -%pi, %pi],
+[legend, 
+"1", "1/2", "1/3", "1/4"
+]
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Comment: As the Decoherent enhances, It is easire to find the stationary axis.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Conclusion
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+A stationary axis exist for small internal rotations(a, b).
+Stronger Decoherence : Larger rotation is allowed. 
+[Result obtained by plotting same (a, b), varying %alpha[1, 2]]
+
+(u, v) depends on %alpha[1, 2];
+generally close to v = b.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: section start ]
+Nontrivial Decoherence
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: input   start ] */
+wxplot2d(
+[
+    cabs(F("ab", "bb", 0.2, %psi, [1/sqrt(2), 1/sqrt(2) * exp(%i * 1/8 * %pi)])),
+    cabs(F("ab", "bb", 0.2, %psi, [1/sqrt(2), 1/sqrt(2) * exp(%i * 1/4 * %pi)])),
+    cabs(F("ab", "bb", 0.2, %psi, [1/sqrt(2), 1/sqrt(2) * exp(%i * 1/2 * %pi)])),
+    cabs(F("ab", "bb", 0.2, %psi, [1/sqrt(2), 1/sqrt(2) * exp(%i * 1 * %pi)]))
+],
+[%psi, -%pi, %pi],
+[legend, 
+"1/8", "1/4", "1/2", "1"
+]
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Conclusion:
+I didn't find any stationary biased history
+(on x-z plane) that can set the SuperT 
+closures or openers to zero.
+when the decoherence is nontrivial.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: comment start ]
+even if the rotation is small (~0.01 degrees), 
+we can't make the openers zero
+for a non-trivial decoherent schema
+(phase difference between alpha1 and alpha2.
+wxmaxima having problems saving graphs.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: section start ]
+History for Y type of information
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: comment start ]
+Openers
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+factor(SuperT("<<", "<>"));
+factor(SuperT(">>", "<>"));
+factor(SuperT(">>", "><"));
+factor(SuperT("<<", "><"));
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+solve([2* b^2 - 2 * %i * a * b -1 = 0, a^2 + b^2 = 1], [a, b]);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+No solution means you can't choose a good set of
+ (a, b) to make the history consistent.
+The only way to make the Y history consistent
+ is to eliminate the phase difference when
+environment is detecting the Z information 
+of the princple system.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: comment start ]
+Closures
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+SuperT("<>", "<<");
+SuperT("<>", ">>");
+SuperT("><", ">>");
+SuperT("><", "<<");
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Therefore, the history(Y) is consistent
+when a1 and a2 are in-phase.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: comment start ]
+Histories (Y)
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+SuperT("<<", "<<");
+SuperT("<<", ">>");
+SuperT(">>", "<<");
+SuperT(">>", ">>");
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+SuperT for >< states: (Y)
+  The closures are proportional to
+
+%i * |a1||a2| sin(t1 - t1)
+
+
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: section start ]
+History Z
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: comment start ]
+Openers
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+SuperT("00", "01");
+SuperT("11", "10");
+SuperT("00", "10");
+SuperT("11", "01");
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Closures
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+SuperT("01", "00");
+SuperT("10", "11");
+SuperT("10", "00");
+SuperT("01", "11");
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Transistion Probabilities
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+SuperT("00", "00");
+SuperT("11", "00");
+SuperT("00", "11");
+SuperT("11", "11");
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+For e -> 0, aka, no internal dynamics,
+ we get consistency
+For |a1| |a2| -> 0, aka, full decoherent
+ scheme, also get consistency
+
+imposible to flip the system: make sense 
+because of the dynamics only flips the system.
+I believe the flip is actually of order e^2.
+
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+SuperT("++", "++");
+SuperT("++", "+-");
+SuperT("++", "-+");
+SuperT("++", "--");
+SuperT("+-", "++");
+SuperT("+-", "+-");
+SuperT("+-", "-+");
+SuperT("+-", "--");
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+SuperT("-+", "++");
+SuperT("-+", "+-");
+SuperT("-+", "-+");
+SuperT("-+", "--");
+SuperT("--", "++");
+SuperT("--", "+-");
+SuperT("--", "-+");
+SuperT("--", "--");
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+SuperT for +- states (X)
+
+  Not so interesting as We have rotation 
+on Y and decoherent on X.
+  The closures are zero only when e -> 
+and a1 a2 -> 0, aka 
+  no internal dynamics + full decoherent.
+   [wxMaxima: comment end   ] */
+
+
+
+/* Old versions of Maxima abort on loading files that end in a comment. */
+"Created with wxMaxima 22.04.0"$
